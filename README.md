@@ -254,6 +254,8 @@ Tap any chip or enter a custom URL, then tap **"Apply & Refresh Discovery"** to 
 
 ## Problem Statement 03 — Compliance Matrix
 
+> 📖 **Comprehensive Test Documentation:** For the complete mock citizen directory, cryptographic assets, and test case catalog (CI, Super App, Child App, and negative security scenarios), see [**TEST_DATA_AND_TEST_CASES.md**](TEST_DATA_AND_TEST_CASES.md).
+
 | Mandatory Task | Requirement | Implementation Status | Location |
 |:---:|---|:---:|---|
 | **Task 1** | Support `device_sso` scope in PAR & Authorize | ✅ Implemented | `ParAuthManager.kt`, `nativeSsoEngine.ts:handleParEndpoint` |
