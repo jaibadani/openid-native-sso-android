@@ -8,6 +8,26 @@ This project delivers two native Android applications:
 
 ---
 
+## 🌐 Live Cloud Server & OIDC Endpoints
+
+The eSignet Go & Thunder ID Native SSO backend is deployed and accessible globally via the following live HTTPS public endpoints:
+
+| Endpoint | URL |
+|---|---|
+| **OIDC Issuer Base URL** | `https://dozen-billion-low-shepherd.trycloudflare.com/api` |
+| **OIDC Discovery** | [`/.well-known/openid-configuration`](https://dozen-billion-low-shepherd.trycloudflare.com/api/.well-known/openid-configuration) |
+| **Pushed Authorization (PAR)** | `https://dozen-billion-low-shepherd.trycloudflare.com/api/oauth2/par` |
+| **Interactive Authorize & Consent UI** | `https://dozen-billion-low-shepherd.trycloudflare.com/api/oauth2/authorize` |
+| **Token Endpoint (Auth Code & Token Exchange)** | `https://dozen-billion-low-shepherd.trycloudflare.com/api/oauth2/token` |
+| **UserInfo Endpoint (DPoP + ath)** | `https://dozen-billion-low-shepherd.trycloudflare.com/api/oauth2/userinfo` |
+| **Session Revocation & Logout** | `https://dozen-billion-low-shepherd.trycloudflare.com/api/oauth2/revoke` |
+
+> **Pre-configured Test Citizen Directory:**
+> * **UIN:** `8294017365` (Ananya Deshmukh) or `4510928374` (Rohan Vikram)
+> * **Default OTP:** `111111`
+
+---
+
 ## Architecture & Security Highlights
 
 * **Hardware Key A in AndroidKeyStore:** Generated under alias `esignet_hardware_key_A` using `setIsStrongBoxBacked(true)` with automatic fallback to standard TEE. The private key never leaves the hardware security module.
@@ -222,7 +242,7 @@ npx tsx scripts/run-postman-ci.ts
 
 ### 3. Dynamic Server Switching (No APK Rebuild Required)
 Both Super App and Child App include an on-screen **eSignet Server Endpoint** configuration card with preset chips:
-* **⚡ Public Tunnel:** Live cloud tunnel for real Android devices anywhere on 5G/Wi-Fi.
+* **⚡ Public Tunnel (`https://dozen-billion-low-shepherd.trycloudflare.com/api`):** Live Cloudflare HTTPS tunnel for real Android devices anywhere on 5G/Wi-Fi.
 * **📶 Wi-Fi LAN (`http://172.16.138.34:3000/api`):** Local zero-latency Wi-Fi communication.
 * **💻 Local Laptop (`http://127.0.0.1:3000/api`):** Via `adb reverse tcp:3000 tcp:3000`.
 * **📱 Android Emulator (`http://10.0.2.2:3000/api`):** Standard Android emulator host gateway.
