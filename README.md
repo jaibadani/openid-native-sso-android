@@ -198,21 +198,54 @@ apksigner verify --print-certs childapp/build/outputs/apk/release/childapp-relea
 
 ## Local Mock Server & Backend Integration
 
-To test locally with the mock server in `esignet-go-native-sso-studio-oct-31-2026-12-04-15-am`:
-1. Start the local server:
-   ```bash
-   cd esignet-go-native-sso-studio-oct-31-2026-12-04-15-am
-   npm install
-   npm run dev
-   ```
-2. When running on an Android Emulator, change `issuerUrl` in `sso-common/.../SsoConfig.kt`:
-   ```kotlin
-   var issuerUrl: String = "http://10.0.2.2:3000/api"
-   ```
-3. To test against the live MOSIP Collab Sandbox:
-   ```kotlin
-   var issuerUrl: String = "https://esignet.mosip.net"
-   ```
+The repository includes a complete eSignet Go & Thunder ID Native SSO reference server in `esignet-go-native-sso-studio-oct-31-2026-12-04-15-am/` with full FAPI 2.0, PAR, PKCE, DPoP, Token Exchange, and interactive Citizen Login/Consent screens.
+
+### 1. Start the Server Locally
+```bash
+cd esignet-go-native-sso-studio-oct-31-2026-12-04-15-am
+npm install --legacy-peer-deps
+PORT=3000 npx tsx server.ts
+```
+
+### 2. Run Automated Postman CI Tests (100% Pass)
+```bash
+npx tsx scripts/run-postman-ci.ts
+```
+**Test Coverage (7/7 Automated Assertions):**
+* ✓ `[1/7]` GET `/.well-known/openid-configuration` (`native_sso_supported == true`)
+* ✓ `[2/7]` POST `/oauth2/par` (201 Created with `request_uri`)
+* ✓ `[3/7]` Authorize + OTP + Consent (Issued authorization code)
+* ✓ `[4/7]` POST `/oauth2/token` (`authorization_code` -> Issues `device_secret` & verifies `ds_hash`)
+* ✓ `[5/7]` POST `/oauth2/token` (`token-exchange` -> 200 OK Silent SSO bound to Key A)
+* ✓ `[6/7]` Negative Security Checks (Task 10b `device_sso` scope rejection & Task 9.a.iii.4 Rogue Key X rejection)
+* ✓ `[7/7]` POST `/oauth2/revoke` (Blacklists JTI & rejects subsequent exchange with `invalid_grant`)
+
+### 3. Dynamic Server Switching (No APK Rebuild Required)
+Both Super App and Child App include an on-screen **eSignet Server Endpoint** configuration card with preset chips:
+* **⚡ Public Tunnel:** Live cloud tunnel for real Android devices anywhere on 5G/Wi-Fi.
+* **📶 Wi-Fi LAN (`http://172.16.138.34:3000/api`):** Local zero-latency Wi-Fi communication.
+* **💻 Local Laptop (`http://127.0.0.1:3000/api`):** Via `adb reverse tcp:3000 tcp:3000`.
+* **📱 Android Emulator (`http://10.0.2.2:3000/api`):** Standard Android emulator host gateway.
+* **🌐 MOSIP Collab Sandbox (`https://esignet.collab.mosip.net`):** Upstream production testbed.
+
+Tap any chip or enter a custom URL, then tap **"Apply & Refresh Discovery"** to immediately purge the discovery cache and switch servers at runtime.
+
+---
+
+## Problem Statement 03 — Compliance Matrix
+
+| Mandatory Task | Requirement | Implementation Status | Location |
+|:---:|---|:---:|---|
+| **Task 1** | Support `device_sso` scope in PAR & Authorize | ✅ Implemented | `ParAuthManager.kt`, `nativeSsoEngine.ts:handleParEndpoint` |
+| **Task 2** | Android Hardware Key A generation (StrongBox/TEE) | ✅ Implemented | `HardwareKeyManager.kt` (`esignet_hardware_key_A`) |
+| **Task 3** | RFC 9449 DPoP proof generation & verification | ✅ Implemented | `DpopProofGenerator.kt`, `nativeSsoEngine.ts:validateDpopProof` |
+| **Task 4** | Issue `device_secret` JWE & embed `ds_hash` in `id_token` | ✅ Implemented | `nativeSsoEngine.ts:issueDeviceSecret`, SHA-256 base64url hash |
+| **Task 5** | Signature-protected IPC bound service | ✅ Implemented | `NativeSsoService.kt` (dual-layer signature check) |
+| **Task 6** | RFC 8693 Token Exchange (`grant_type=token-exchange`) | ✅ Implemented | `TokenExchangeManager.kt`, `nativeSsoEngine.ts:handleTokenExchange` |
+| **Task 7** | Fetch `/oauth2/userinfo` with DPoP proof + `ath` | ✅ Implemented | `TokenExchangeManager.kt:step 5`, `nativeSsoEngine.ts:handleUserInfo` |
+| **Task 8** | Negative Security: Reject `device_sso` in Child App | ✅ Implemented | Client guard in `TokenExchangeManager.kt` + Server 400 rejection |
+| **Task 9** | Negative Security: Reject rogue Key X thumbprints | ✅ Implemented | Server validates `dpop_jkt` match against session binding |
+| **Task 10** | Session Revocation & Logout blacklisting | ✅ Implemented | `nativeSsoEngine.ts:handleRevokeOrLogout` (`jti` blacklist) |
 
 ---
 
