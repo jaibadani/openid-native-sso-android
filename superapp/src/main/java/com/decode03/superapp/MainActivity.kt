@@ -185,8 +185,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun appendLog(message: String) {
-        val currentLogs = binding.tvConsoleLogs.text.toString()
-        val timestamp = android.text.format.DateFormat.format("HH:mm:ss", System.currentTimeMillis())
-        binding.tvConsoleLogs.text = "[$timestamp] $message\n$currentLogs"
+        runOnUiThread {
+            val currentLogs = binding.tvConsoleLogs.text.toString()
+            val timestamp = android.text.format.DateFormat.format("HH:mm:ss", System.currentTimeMillis())
+            binding.tvConsoleLogs.text = "[$timestamp] $message\n$currentLogs"
+        }
     }
 }

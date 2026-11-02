@@ -148,9 +148,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun appendAuditLog(message: String) {
-        val current = binding.tvAuditLogs.text.toString()
-        val time = android.text.format.DateFormat.format("HH:mm:ss", System.currentTimeMillis())
-        binding.tvAuditLogs.text = "[$time] $message\n$current"
+        runOnUiThread {
+            val current = binding.tvAuditLogs.text.toString()
+            val time = android.text.format.DateFormat.format("HH:mm:ss", System.currentTimeMillis())
+            binding.tvAuditLogs.text = "[$time] $message\n$current"
+        }
     }
 
     override fun onDestroy() {
