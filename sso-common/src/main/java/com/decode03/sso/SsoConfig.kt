@@ -6,14 +6,14 @@ import android.content.Context
  * Central configuration file for MOSIP eSignet Native SSO mobile apps.
  *
  * Defaults to the live HTTPS public tunnel with Native SSO 1.0 support:
- * https://obtaining-afford-silicon-genesis.trycloudflare.com/api
+ * https://dozen-billion-low-shepherd.trycloudflare.com/api
  *
  * Developers and testers can switch between Public Tunnel, Local Wi-Fi,
  * Local Laptop (via adb reverse), Local Emulator (10.0.2.2), or MOSIP Collab Sandbox
  * directly from the app UI without rebuilding the APK.
  */
 object SsoConfig {
-    const val PRESET_PUBLIC_TUNNEL: String = "https://obtaining-afford-silicon-genesis.trycloudflare.com/api"
+    const val PRESET_PUBLIC_TUNNEL: String = "https://dozen-billion-low-shepherd.trycloudflare.com/api"
     const val PRESET_LOCAL_WIFI: String = "http://172.16.138.34:3000/api"
     const val PRESET_LOCAL_ADB: String = "http://127.0.0.1:3000/api"
     const val PRESET_LOCAL_EMULATOR: String = "http://10.0.2.2:3000/api"
@@ -27,7 +27,7 @@ object SsoConfig {
      * Runtime endpoints (par, authorization, token, userinfo) will be discovered
      * dynamically from "$issuerUrl/.well-known/openid-configuration".
      */
-    var issuerUrl: String = "https://obtaining-afford-silicon-genesis.trycloudflare.com/api"
+    var issuerUrl: String = "https://dozen-billion-low-shepherd.trycloudflare.com/api"
 
     /**
      * Super App OAuth 2.0 Client ID (registered with device_sso scope).
@@ -89,10 +89,14 @@ object SsoConfig {
      */
     fun init(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val saved = prefs.getString(KEY_CUSTOM_ISSUER, null)
-        val staleUrls = listOf("ais-pre-awedmi5q3esrqnpuk72vwm", "nec-trails-dash-guns")
-        if (!saved.isNullOrBlank() && staleUrls.none { saved.contains(it) }) {
-            issuerUrl = saved.trim().trimEnd('/')
+        val saved = prefs.getString(KEY_CUSTOM_ISSUER, null)?.trim()?.trimEnd('/')
+
+        // Any stale cloud run URL or expired ephemeral trycloudflare.com tunnel gets reset to current live tunnel
+        val isExpiredTunnel = saved != null && saved.contains("trycloudflare.com") && saved != PRESET_PUBLIC_TUNNEL.trimEnd('/')
+        val isDeadCloudRun = saved != null && saved.contains("ais-pre-awedmi5q3esrqnpuk72vwm")
+
+        if (!saved.isNullOrBlank() && !isExpiredTunnel && !isDeadCloudRun) {
+            issuerUrl = saved
         } else {
             issuerUrl = PRESET_PUBLIC_TUNNEL
             prefs.edit().putString(KEY_CUSTOM_ISSUER, PRESET_PUBLIC_TUNNEL).apply()
