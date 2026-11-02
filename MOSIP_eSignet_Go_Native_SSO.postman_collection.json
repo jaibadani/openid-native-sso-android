@@ -1,0 +1,142 @@
+{
+  "info": {
+    "_postman_id": "03-esignet-native-sso-go-thunderid",
+    "name": "MOSIP eSignet Go & Thunder ID — OpenID Connect Native SSO 1.0 Collection",
+    "description": "End-to-end Postman Collection testing FAPI 2.0 PAR + DPoP Super App Login, Device Secret Issuance (ds_hash), OAuth 2.0 Token Exchange Silent SSO, and Negative Security Validations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "super_client_id",
+      "value": "mosip-super-wallet-android"
+    },
+    {
+      "key": "child_client_id",
+      "value": "mosip-mparivahan-transit"
+    },
+    {
+      "key": "citizen_uin",
+      "value": "8294017365"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Super App — Pushed Authorization Request (POST /oauth2/par)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/oauth2/par",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"mosip-super-wallet-android\",\n  \"scope\": \"openid profile email device_sso\",\n  \"redirect_uri\": \"io.mosip.inji.superwallet://oauth2redirect\",\n  \"code_challenge\": \"E9Melhoa2OwvFrGMTJgu96e2t88U2vH_K2G1x2y3z4A\",\n  \"code_challenge_method\": \"S256\",\n  \"dpop_jkt\": \"NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs\"\n}"
+        }
+      }
+    },
+    {
+      "name": "2. Super App — Exchange Code for Tokens + Device Secret (POST /oauth2/token)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "DPoP",
+            "value": "{{super_app_dpop_proof}}"
+          }
+        ],
+        "url": "{{base_url}}/oauth2/token",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"grant_type\": \"authorization_code\",\n  \"client_id\": \"mosip-super-wallet-android\",\n  \"code\": \"{{authorization_code}}\",\n  \"redirect_uri\": \"io.mosip.inji.superwallet://oauth2redirect\",\n  \"code_verifier\": \"{{pkce_code_verifier}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Child App — Silent SSO Token Exchange (POST /oauth2/token)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "DPoP",
+            "value": "{{dpop_proof_signed_by_super_app_key_A}}"
+          }
+        ],
+        "url": "{{base_url}}/oauth2/token",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"grant_type\": \"urn:ietf:params:oauth:grant-type:token-exchange\",\n  \"client_id\": \"mosip-mparivahan-transit\",\n  \"subject_token\": \"{{super_app_id_token}}\",\n  \"subject_token_type\": \"urn:ietf:params:oauth:token-type:id_token\",\n  \"actor_token\": \"{{super_app_device_secret}}\",\n  \"actor_token_type\": \"urn:openid:params:token-type:device-secret\",\n  \"audience\": \"https://esignet.mosip.net\",\n  \"scope\": \"openid profile\"\n}"
+        }
+      }
+    },
+    {
+      "name": "4. Negative Test — Reject device_sso Scope in Token Exchange (Task 10b)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "DPoP",
+            "value": "{{dpop_proof_signed_by_super_app_key_A}}"
+          }
+        ],
+        "url": "{{base_url}}/oauth2/token",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"grant_type\": \"urn:ietf:params:oauth:grant-type:token-exchange\",\n  \"client_id\": \"mosip-mparivahan-transit\",\n  \"subject_token\": \"{{super_app_id_token}}\",\n  \"subject_token_type\": \"urn:ietf:params:oauth:token-type:id_token\",\n  \"actor_token\": \"{{super_app_device_secret}}\",\n  \"actor_token_type\": \"urn:openid:params:token-type:device-secret\",\n  \"scope\": \"openid profile device_sso\"\n}"
+        }
+      }
+    },
+    {
+      "name": "5. Child App — Fetch Scoped Citizen Claims (GET /oauth2/userinfo)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "DPoP {{child_app_access_token}}"
+          },
+          {
+            "key": "DPoP",
+            "value": "{{child_userinfo_dpop_proof}}"
+          }
+        ],
+        "url": "{{base_url}}/oauth2/userinfo"
+      }
+    },
+    {
+      "name": "6. Session Revocation & Logout — Blacklist JTI & Invalidate SID (POST /oauth2/revoke)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/oauth2/revoke",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_secret\": \"{{super_app_device_secret}}\",\n  \"sid\": \"{{super_app_session_id}}\",\n  \"client_id\": \"mosip-super-wallet-android\"\n}"
+        }
+      }
+    }
+  ]
+}

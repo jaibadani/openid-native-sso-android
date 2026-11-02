@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Decode03NativeSso" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#0D47A1</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#D1E4FF</item>
+        <item name="colorOnPrimaryContainer">#001D40</item>
+        <item name="android:statusBarColor">#0D47A1</item>
+    </style>
+</resources>

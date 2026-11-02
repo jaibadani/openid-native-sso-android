@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="childapp_name">Child App (mParivahan)</string>
+    <string name="title_childapp">Child App — Silent SSO Consumer</string>
+    <string name="subtitle_childapp">RFC 8693 Token Exchange &amp; DPoP Delegation (MOSIP Decode 03)</string>
+    <string name="btn_silent_sso">Silent SSO Login</string>
+    <string name="label_citizen_claims">Citizen Profile &amp; Verified Claims</string>
+    <string name="status_child_idle">Ready to authenticate silently using Super App credentials</string>
+    <string name="status_child_authenticated">Authenticated via Native SSO (Zero-Prompt)</string>
+    <string name="label_security_note">Security: Reuses Super App Key A. Must NOT request device_sso scope.</string>
+</resources>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Signature-level custom permission to protect Super App's SSO Signing Service -->
+    <permission
+        android:name="com.decode03.sso.permission.ACCESS_NATIVE_SSO"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.decode03.sso.permission.ACCESS_NATIVE_SSO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="@string/superapp_name"
+        android:roundIcon="@android:drawable/sym_def_app_icon"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.Decode03NativeSso">
+
+        <!-- Main Dashboard & Login Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Custom Tab OAuth 2.0 Redirect Handler -->
+        <activity
+            android:name=".callback.AuthRedirectActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Matches SsoConfig.superAppRedirectUri: "io.mosip.inji.superwallet://oauth2redirect" -->
+                <data
+                    android:scheme="io.mosip.inji.superwallet"
+                    android:host="oauth2redirect" />
+            </intent-filter>
+        </activity>
+
+        <!-- Signature-Protected Native SSO IPC Bound Service -->
+        <service
+            android:name=".service.NativeSsoService"
+            android:exported="true"
+            android:permission="com.decode03.sso.permission.ACCESS_NATIVE_SSO">
+            <intent-filter>
+                <action android:name="com.decode03.sso.action.BIND_SSO_SIGNING_SERVICE" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

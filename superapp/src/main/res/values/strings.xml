@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="superapp_name">Super App (Inji)</string>
+    <string name="title_superapp">Super App — Identity Provider</string>
+    <string name="subtitle_superapp">OpenID Connect Native SSO 1.0 (MOSIP Decode 03)</string>
+    <string name="btn_sign_in_esignet">Sign in with eSignet</string>
+    <string name="btn_clear_session">Log Out &amp; Clear Session</string>
+    <string name="label_hardware_key">Hardware Key A (StrongBox/TEE)</string>
+    <string name="label_session_status">Session Status</string>
+    <string name="status_not_signed_in">No Active Session — Ready to Sign In</string>
+    <string name="status_signed_in">Session Active (device_secret issued)</string>
+    <string name="label_device_secret">Device Secret (JWE/ds_hash):</string>
+    <string name="label_key_thumbprint">Key A dpop_jkt:</string>
+    <string name="label_sid">Session ID (sid):</string>
+</resources>

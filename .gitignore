@@ -1,0 +1,30 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+**/.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# Node & web artifacts
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+*.log
+
+# Signing keys and secrets (Never commit!)
+keystore.properties
+*.p12
+*.jks
+*.keystore
+*.key
+*.pem
+
+# Build artifacts
+**/build/
+*.apk
+*.aab
